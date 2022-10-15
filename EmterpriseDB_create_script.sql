@@ -1,3 +1,4 @@
+--	Request. 0.
 --Create DB
 Create Database Task3
 GO
@@ -47,6 +48,7 @@ Insert Into employee Values (default,'John','Pit', NULL, NULL)
 Insert Into employee Values (default,'Michalla','Pat', NULL, NULL)
 Insert Into employee Values (default,'Gorden','Young', NULL, NULL)
 Insert Into employee Values (default,'Jay','Noller', NULL, NULL)
+Insert Into employee Values (default,'Emanuela','Chrossinger', NULL, NULL)
 
 Insert Into position Values ('PO',10000) -- id	1
 Insert Into position Values ('Developer',6000) -- id 2
@@ -78,6 +80,7 @@ Update employee SET position_id = 2, project_id = 2 WHERE id = '231AF41A-D3BE-4F
 Update employee SET position_id = 3, project_id = 3 WHERE id = '6A9EE07B-0FD9-4B85-B68A-E15181C05821'
 Update employee SET position_id = 4, project_id = 4 WHERE id = '13DFF9E3-0414-455C-B8AE-EC7A21A6471D'
 Update employee SET position_id = 5, project_id = 5 WHERE id = 'AA65D08F-E664-4CC9-934D-FA0D0B6EF054'
+Update employee SET position_id = 2, project_id = 1 WHERE id = '825B1A2E-D84D-45D5-9874-6BE3FB7BC581'
 
 --Add(Update) user_id to equipments
 Update equipment SET user_id = '0E72C2F8-F2A6-43A1-826A-32C662A5B574' WHERE id = 1
@@ -85,6 +88,30 @@ Update equipment SET user_id = '231AF41A-D3BE-4FE9-8DB6-931B4DB0C34F' WHERE id =
 Update equipment SET user_id = '6A9EE07B-0FD9-4B85-B68A-E15181C05821' WHERE id = 3
 Update equipment SET user_id = '13DFF9E3-0414-455C-B8AE-EC7A21A6471D' WHERE id = 4
 Update equipment SET user_id = 'AA65D08F-E664-4CC9-934D-FA0D0B6EF054' WHERE id = 5
+
+--	End of Request. 0.
+
+--	Request. 1.
+SELECT * FROM employee WHeRE project_id = NULL
+--	End of Request. 1.
+
+--	Request. 2.
+	--Get employees rates from project sub queries
+		--SELECT rate FROM position WHERE id IN (SELECT position_id FROM employee WHERE project_id = (SELECT id FROM project WHERE id= 1))
+	--Get position_id from all employees on a specific project
+		--SELECT position_id FROM employee WHERE project_id = (SELECT id FROM project WHERE id= 1)
+
+SELECT SUM (rate) FROM position WHERE id IN (SELECT position_id FROM employee WHERE project_id = (SELECT id FROM project WHERE id= 1))
+--	End of Request. 1.
+
+--	Request. 3.
+
+
+
+
+
+SELECT * FROM employee WHeRE project_id = NULL
+--	End of Request. 3.
 
 
 
