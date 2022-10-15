@@ -72,15 +72,19 @@ Insert Into equipment Values ('KIT office', 800.50, NULL)-- id 3
 Insert Into equipment Values ('HDMI Cable', 5.04, NULL)-- id 4
 Insert Into equipment Values ('PEN 50GB', 560.50, NULL)-- id 5
 
+--Add(Update) position_id and project_id to employees
+Update employee SET position_id = 1, project_id = 1 WHERE id = '0E72C2F8-F2A6-43A1-826A-32C662A5B574'
+Update employee SET position_id = 2, project_id = 2 WHERE id = '231AF41A-D3BE-4FE9-8DB6-931B4DB0C34F'
+Update employee SET position_id = 3, project_id = 3 WHERE id = '6A9EE07B-0FD9-4B85-B68A-E15181C05821'
+Update employee SET position_id = 4, project_id = 4 WHERE id = '13DFF9E3-0414-455C-B8AE-EC7A21A6471D'
+Update employee SET position_id = 5, project_id = 5 WHERE id = 'AA65D08F-E664-4CC9-934D-FA0D0B6EF054'
 
-
---View employee table
+--View tables
 SELECT * FROM employee
-
-
-
-
-
+SELECT * FROM position
+SELECT * FROM vacancies
+SELECT * FROM project
+SELECT * FROM equipment
 
 
 
@@ -89,10 +93,8 @@ SELECT * FROM employee
 	--ALTER TABLE dbo.position
 	--ADD PRIMARY KEY (id);
 	--GO
-
 	Use Task3
 	Go
-
 	--DROP TABLE IF EXISTS dbo.vacancies
 	--DROP TABLE IF EXISTS dbo.position
 
