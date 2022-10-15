@@ -79,6 +79,15 @@ Update employee SET position_id = 3, project_id = 3 WHERE id = '6A9EE07B-0FD9-4B
 Update employee SET position_id = 4, project_id = 4 WHERE id = '13DFF9E3-0414-455C-B8AE-EC7A21A6471D'
 Update employee SET position_id = 5, project_id = 5 WHERE id = 'AA65D08F-E664-4CC9-934D-FA0D0B6EF054'
 
+--Add(Update) user_id to equipments
+Update equipment SET user_id = '0E72C2F8-F2A6-43A1-826A-32C662A5B574' WHERE id = 1
+Update equipment SET user_id = '231AF41A-D3BE-4FE9-8DB6-931B4DB0C34F' WHERE id = 2
+Update equipment SET user_id = '6A9EE07B-0FD9-4B85-B68A-E15181C05821' WHERE id = 3
+Update equipment SET user_id = '13DFF9E3-0414-455C-B8AE-EC7A21A6471D' WHERE id = 4
+Update equipment SET user_id = 'AA65D08F-E664-4CC9-934D-FA0D0B6EF054' WHERE id = 5
+
+
+
 --View tables
 SELECT * FROM employee
 SELECT * FROM position
