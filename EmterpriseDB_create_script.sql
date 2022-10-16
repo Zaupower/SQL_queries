@@ -98,23 +98,23 @@ SELECT * FROM employee WHeRE project_id = NULL
 --	Request. 2.
 
 DECLARE @table_var TABLE(
-	project_rate_sum float
+	project_rate_sum float,
+	e_project_id int
 )
-
 INSERT INTO @table_var
 	SELECT 
-		SUM(p.rate)
+		SUM(p.rate), e.project_id
 	FROM 
 		position p
 		INNER JOIN employee e ON p.id = e.position_id
 		GROUP BY e.project_id
-
 SELECT 
-	name , max_sum_rate
+	name 
 FROM project
-WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @table_var WHERE project_rate_sum > max_sum_rate)
+WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @table_var WHERE project_rate_sum > max_sum_rate AND e_project_id = project.id)
 
 --	End of Request. 2.
+
 --	Request. 3.
 
 
