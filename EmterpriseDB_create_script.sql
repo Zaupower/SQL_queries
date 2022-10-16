@@ -97,11 +97,11 @@ SELECT * FROM employee WHeRE project_id = NULL
 
 --	Request. 2.
 
-DECLARE @table_var TABLE(
-	project_rate_sum float,
+DECLARE @rate_sum_table TABLE(
+	e_project_rate_sum float,
 	e_project_id int
 )
-INSERT INTO @table_var
+INSERT INTO @rate_sum_table
 	SELECT 
 		SUM(p.rate), e.project_id
 	FROM 
@@ -111,17 +111,43 @@ INSERT INTO @table_var
 SELECT 
 	name 
 FROM project
-WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @table_var WHERE project_rate_sum > max_sum_rate AND e_project_id = project.id)
+WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table WHERE e_project_rate_sum > max_sum_rate AND e_project_id = project.id)
 
 --	End of Request. 2.
 
 --	Request. 3.
 
+DECLARE @rate_sum_table2 TABLE(
+	e_project_rate_sum float,
+	e_project_id int
+)
+INSERT INTO @rate_sum_table2
+	SELECT 
+		SUM(p.rate), e.project_id
+	FROM 
+		position p
+		INNER JOIN employee e ON p.id = e.position_id
+		GROUP BY e.project_id
 
+DECLARE @scored_projects TABLE(
+	sc_pr_name nvarchar(255),
+	sc_pr_id int
+)
+INSERT INTO @scored_projects
+	SELECT 
+		name , id
+	FROM project
+	WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table2 WHERE e_project_rate_sum > max_sum_rate AND e_project_id = project.id)
 
+--SELECT * FROM @scored_projects
 
+SELECT 
+		CONCAT(e.first_name,' ', e.last_name), sp.sc_pr_name
+	FROM 
+		employee e
+		INNER JOIN  @scored_projects sp ON sp.sc_pr_id = e.project_id
+		
 
-SELECT * FROM employee WHeRE project_id = NULL
 --	End of Request. 3.
 
 
