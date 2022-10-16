@@ -201,13 +201,13 @@ INSERT INTO @scored_projects2
 	SELECT 
 		name , id, ( max_sum_rate - e_project_rate_eq_sum) -- difference between the monthly budget of the project and monthly expenses
 	FROM project
-	INNER JOIN @rate_eq_sum_table3 ON (e_project_rate_eq_sum < max_sum_rate AND e_project_id = project.id)
+	INNER JOIN @rate_eq_sum_table3 ON (e_project_rate_eq_sum > max_sum_rate AND e_project_id = project.id)
 	--WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_eq_sum_table3 WHERE e_project_rate_eq_sum < max_sum_rate AND e_project_id = project.id)
-	SELECT 
-		CONCAT(e.first_name,' ', e.last_name) AS 'Employee', sp.sc_pr_name AS 'Project', sc_diff AS 'Diff'
-	FROM 
-		employee e
-		INNER JOIN  @scored_projects2 sp ON sp.sc_pr_id = e.project_id
+SELECT 
+	CONCAT(e.first_name,' ', e.last_name) AS 'Employee', sp.sc_pr_name AS 'Project', sc_diff AS 'Diff'
+FROM 
+	employee e
+	INNER JOIN  @scored_projects2 sp ON sp.sc_pr_id = e.project_id
 		
 --	End of Request. 4.
 
