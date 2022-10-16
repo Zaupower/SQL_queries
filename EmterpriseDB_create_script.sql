@@ -96,14 +96,25 @@ SELECT * FROM employee WHeRE project_id = NULL
 --	End of Request. 1.
 
 --	Request. 2.
-	--Get employees rates from project sub queries
-		--SELECT rate FROM position WHERE id IN (SELECT position_id FROM employee WHERE project_id = (SELECT id FROM project WHERE id= 1))
-	--Get position_id from all employees on a specific project
-		--SELECT position_id FROM employee WHERE project_id = (SELECT id FROM project WHERE id= 1)
 
-SELECT SUM (rate) FROM position WHERE id IN (SELECT position_id FROM employee WHERE project_id = (SELECT id FROM project WHERE id= 1))
---	End of Request. 1.
+DECLARE @table_var TABLE(
+	project_rate_sum float
+)
 
+INSERT INTO @table_var
+	SELECT 
+		SUM(p.rate)
+	FROM 
+		position p
+		INNER JOIN employee e ON p.id = e.position_id
+		GROUP BY e.project_id
+
+SELECT 
+	name , max_sum_rate
+FROM project
+WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @table_var WHERE project_rate_sum > max_sum_rate)
+
+--	End of Request. 2.
 --	Request. 3.
 
 
