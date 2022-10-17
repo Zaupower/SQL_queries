@@ -221,7 +221,7 @@ DECLARE @position_pm_id AS int
 SET @position_pm_id = (SELECT id FROM position WHERE position.name = 'PM')
 INSERT INTO vacancies(position_id) SELECT( @position_pm_id)
 GO
---Teste TRIGGER
+--Test TRIGGER
 ENABLE TRIGGER open_vacancie_pm_for_new_project ON project
 GO
 Insert Into project Values ('Test Project to view vacancie', 88888 ) -- id 1
