@@ -93,7 +93,7 @@ Update equipment SET user_id = '0E72C2F8-F2A6-43A1-826A-32C662A5B574' WHERE id =
 --	End of Request. 0.
 
 --	Request. 1.
-SELECT * FROM employee WHeRE project_id = NULL
+SELECT * FROM employee WHERE project_id = NULL
 --	End of Request. 1.
 
 --	Request. 2.
