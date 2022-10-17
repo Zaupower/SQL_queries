@@ -54,7 +54,7 @@ Insert Into position Values ('PO',10000) -- id	1
 Insert Into position Values ('Developer',6000) -- id 2
 Insert Into position Values ('Hiring Recruiter',5000) -- id 3
 Insert Into position Values ('Security',9000) -- id 4
-Insert Into position Values ('Manager',8500) -- id 5
+Insert Into position Values ('PM',8500) -- id 5
 
 Insert Into vacancies Values (1) -- id 1
 Insert Into vacancies Values (2) -- id 2
@@ -112,12 +112,13 @@ INSERT INTO @rate_sum_table
 SELECT 
 	name 
 FROM project
-WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table WHERE e_project_rate_sum > max_sum_rate AND e_project_id = project.id)
+WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table WHERE e_project_rate_sum > max_sum_rate/12 AND e_project_id = project.id)
 
 --	End of Request. 2.
 
 --	Request. 3.
---Table with project rate sum and id
+	--Table with project rate sum and id
+
 DECLARE @rate_sum_table2 TABLE(
 	e_project_rate_sum float,
 	e_project_id int
@@ -138,13 +139,12 @@ INSERT INTO @scored_projects
 	SELECT 
 		name , id
 	FROM project
-	WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table2 WHERE e_project_rate_sum > max_sum_rate AND e_project_id = project.id)
+	WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table2 WHERE e_project_rate_sum > max_sum_rate/12 AND e_project_id = project.id)--Considering max_sum_rate as annual budget 
 	SELECT 
 		CONCAT(e.first_name,' ', e.last_name) AS 'Employee', sp.sc_pr_name
 	FROM 
 		employee e
 		INNER JOIN  @scored_projects sp ON sp.sc_pr_id = e.project_id
-		
 
 --	End of Request. 3.
 
@@ -162,7 +162,9 @@ INSERT INTO @eq_sum_table
 		equipment eq
 		INNER JOIN employee e ON eq.user_id = e.id
 		GROUP BY e.project_id
---SELECT * FROM @eq_sum_table
+SELECT * FROM @eq_sum_table
+SELECT * FROM employee
+
 --Table with sum of rate by project
 DECLARE @rate_sum_table3 TABLE(
 	e_project_rate_sum float,
@@ -187,11 +189,7 @@ INSERT INTO @rate_eq_sum_table3
 	FROM 
 		@rate_sum_table3 rs
 		INNER JOIN @eq_sum_table eq ON rs.e_project_id = eq.e_project_id
-		
-
-SELECT * FROM @rate_eq_sum_table3
-
-
+--SELECT * FROM @rate_eq_sum_table3
 DECLARE @scored_projects2 TABLE(
 	sc_pr_name nvarchar(255),
 	sc_pr_id int,
@@ -201,7 +199,7 @@ INSERT INTO @scored_projects2
 	SELECT 
 		name , id, ( max_sum_rate - e_project_rate_eq_sum) -- difference between the monthly budget of the project and monthly expenses
 	FROM project
-	INNER JOIN @rate_eq_sum_table3 ON (e_project_rate_eq_sum > max_sum_rate AND e_project_id = project.id)
+	INNER JOIN @rate_eq_sum_table3 ON (e_project_rate_eq_sum > max_sum_rate/12 AND e_project_id = project.id)
 	--WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_eq_sum_table3 WHERE e_project_rate_eq_sum < max_sum_rate AND e_project_id = project.id)
 SELECT 
 	CONCAT(e.first_name,' ', e.last_name) AS 'Employee', sp.sc_pr_name AS 'Project', sc_diff AS 'Diff'
@@ -212,9 +210,25 @@ FROM
 --	End of Request. 4.
 
 --	Trigger 1.
-
+SELECT * FROM vacancies
+USE Task3
+GO
+CREATE TRIGGER open_vacancie_pm_for_new_project
+ON project
+AFTER INSERT
+AS 
+DECLARE @position_pm_id AS int
+SET @position_pm_id = (SELECT id FROM position WHERE position.name = 'PM')
+INSERT INTO vacancies(position_id) SELECT( @position_pm_id)
+GO
+--Teste TRIGGER
+ENABLE TRIGGER open_vacancie_pm_for_new_project ON project
+GO
+Insert Into project Values ('Test Project to view vacancie', 88888 ) -- id 1
+SELECT * FROM vacancies
 
 --	End of Trigger 1.
+
 --View tables
 SELECT * FROM employee
 SELECT * FROM position
@@ -222,15 +236,10 @@ SELECT * FROM vacancies
 SELECT * FROM project
 SELECT * FROM equipment
 
-
-
-
 --Utils
 	--ALTER TABLE dbo.position
 	--ADD PRIMARY KEY (id);
 	--GO
-	Use Task3
-	Go
 	--DROP TABLE IF EXISTS dbo.vacancies
 	--DROP TABLE IF EXISTS dbo.position
 
