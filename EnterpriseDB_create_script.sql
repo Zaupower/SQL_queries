@@ -185,7 +185,7 @@ DECLARE @rate_eq_sum_table3 TABLE(
 )
 INSERT INTO @rate_eq_sum_table3
 	SELECT 
-		(rs.e_project_rate_sum + eq.e_equipement_sum)/12, eq.e_project_id
+		(rs.e_project_rate_sum + (eq.e_equipement_sum/12)), eq.e_project_id
 	FROM 
 		@rate_sum_table3 rs
 		INNER JOIN @eq_sum_table eq ON rs.e_project_id = eq.e_project_id
