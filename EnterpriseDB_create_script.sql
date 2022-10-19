@@ -93,7 +93,7 @@ Update equipment SET user_id = '0E72C2F8-F2A6-43A1-826A-32C662A5B574' WHERE id =
 --	End of Request. 0.
 
 --	Request. 1.
-SELECT * FROM employee WHERE project_id = NULL
+SELECT * FROM employee WHERE project_id IS NULL
 --	End of Request. 1.
 
 --	Request. 2.
@@ -103,52 +103,50 @@ DECLARE @rate_sum_table TABLE(
 	e_project_id int
 )
 INSERT INTO @rate_sum_table
-	SELECT 
+	SELECT
 		SUM(p.rate), e.project_id
-	FROM 
+	FROM
 		position p
 		INNER JOIN employee e ON p.id = e.position_id
 		GROUP BY e.project_id
-SELECT 
-	name 
+SELECT
+	name
 FROM project
-WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table WHERE e_project_rate_sum > max_sum_rate/12 AND e_project_id = project.id)
+WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table WHERE e_project_rate_sum > max_sum_rate AND e_project_id = project.id)
 
 --	End of Request. 2.
 
 --	Request. 3.
-	--Table with project rate sum and id
 
 DECLARE @rate_sum_table2 TABLE(
 	e_project_rate_sum float,
 	e_project_id int
 )
 INSERT INTO @rate_sum_table2
-	SELECT 
+	SELECT
 		SUM(p.rate), e.project_id
-	FROM 
+	FROM
 		position p
 		INNER JOIN employee e ON p.id = e.position_id
 		GROUP BY e.project_id
-
 DECLARE @scored_projects TABLE(
 	sc_pr_name nvarchar(255),
 	sc_pr_id int
 )
 INSERT INTO @scored_projects
-	SELECT 
+	SELECT
 		name , id
 	FROM project
-	WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table2 WHERE e_project_rate_sum > max_sum_rate/12 AND e_project_id = project.id)--Considering max_sum_rate as annual budget 
-	SELECT 
-		CONCAT(e.first_name,' ', e.last_name) AS 'Employee', sp.sc_pr_name
-	FROM 
+	WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_sum_table2 WHERE e_project_rate_sum > max_sum_rate AND e_project_id = project.id)--Considering max_sum_rate as annual budget
+	SELECT
+		CONCAT(e.first_name,' ', e.last_name) AS 'Employee'
+	FROM
 		employee e
 		INNER JOIN  @scored_projects sp ON sp.sc_pr_id = e.project_id
-
 --	End of Request. 3.
 
 --	Request. 4.
+
 
 --Table with sum of equipement by project
 DECLARE @eq_sum_table TABLE(
@@ -156,14 +154,13 @@ DECLARE @eq_sum_table TABLE(
 	e_project_id int
 )
 INSERT INTO @eq_sum_table
-	SELECT 
-		SUM(eq.price), e.project_id
-	FROM 
+	SELECT
+		SUM(ISNULL(eq.price, 0)), e.project_id
+	FROM
 		equipment eq
-		INNER JOIN employee e ON eq.user_id = e.id
+		RIGHT JOIN employee e ON eq.user_id = e.id
 		GROUP BY e.project_id
 SELECT * FROM @eq_sum_table
-SELECT * FROM employee
 
 --Table with sum of rate by project
 DECLARE @rate_sum_table3 TABLE(
@@ -171,42 +168,42 @@ DECLARE @rate_sum_table3 TABLE(
 	e_project_id int
 )
 INSERT INTO @rate_sum_table3
-	SELECT 
-		SUM(p.rate), e.project_id
-	FROM 
+	SELECT
+		SUM(ISNULL(p.rate, 0)), e.project_id
+	FROM
 		position p
 		INNER JOIN employee e ON p.id = e.position_id
 		GROUP BY e.project_id
---SELECT * FROM @rate_sum_table3
+SELECT * FROM @rate_sum_table3
 --Table with SUM of rates and equiments by project
 DECLARE @rate_eq_sum_table3 TABLE(
 	e_project_rate_eq_sum float,
 	e_project_id int
 )
 INSERT INTO @rate_eq_sum_table3
-	SELECT 
-		(rs.e_project_rate_sum + (eq.e_equipement_sum/12)), eq.e_project_id
-	FROM 
+	SELECT
+		(rs.e_project_rate_sum + (eq.e_equipement_sum/12)), rs.e_project_id
+	FROM
 		@rate_sum_table3 rs
 		INNER JOIN @eq_sum_table eq ON rs.e_project_id = eq.e_project_id
---SELECT * FROM @rate_eq_sum_table3
-DECLARE @scored_projects2 TABLE(
-	sc_pr_name nvarchar(255),
-	sc_pr_id int,
-	sc_diff float
+SELECT * FROM @rate_eq_sum_table3
+SELECT * FROM project
+--IM here
+
+DECLARE @result_projects_table TABLE(
+    diff float,
+	e_project_id int
 )
-INSERT INTO @scored_projects2
-	SELECT 
-		name , id, ( max_sum_rate - e_project_rate_eq_sum) -- difference between the monthly budget of the project and monthly expenses
-	FROM project
-	INNER JOIN @rate_eq_sum_table3 ON (e_project_rate_eq_sum > max_sum_rate/12 AND e_project_id = project.id)
-	--WHERE project.max_sum_rate IN (SELECT max_sum_rate FROM @rate_eq_sum_table3 WHERE e_project_rate_eq_sum < max_sum_rate AND e_project_id = project.id)
-SELECT 
-	CONCAT(e.first_name,' ', e.last_name) AS 'Employee', sp.sc_pr_name AS 'Project', sc_diff AS 'Diff'
-FROM 
-	employee e
-	INNER JOIN  @scored_projects2 sp ON sp.sc_pr_id = e.project_id
-		
+INSERT INTO @result_projects_table
+    SELECT (max_sum_rate - e_project_rate_eq_sum), project.id
+        FROM project
+        INNER JOIN @rate_eq_sum_table3 AS rt3 ON project.id = rt3.e_project_id
+        WHERE project.max_sum_rate < rt3.e_project_rate_eq_sum
+
+SELECT * FROM @result_projects_table
+
+SELECT CONCAT(first_name,' ', last_name), project_id, rt33.diff FROM employee INNER JOIN @result_projects_table as rt33 ON employee.project_id = rt33.e_project_id
+
 --	End of Request. 4.
 
 --	Trigger 1.
